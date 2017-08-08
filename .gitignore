@@ -1,0 +1,15 @@
+.ipynb_checkpoints
+.idea
+data/
+*.pyc
+src/__pycache__/
+*.pkl
+!adam_ratings.pkl
+*.csv
+!movies_to_be_rated.csv
+!obj_mapping.csv
+!user_mapping.csv
+!objective_epochs.csv
+!U.csv
+!V.csv
+
