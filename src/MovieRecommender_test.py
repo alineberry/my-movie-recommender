@@ -86,7 +86,7 @@ class MovieFilter(object):
 
 
 class PMF(object):
-    
+
     def __init__(self, normalize_ids=True, rank=5, lamd=2, sig2=1/10., num_iter=50, verbose=False):
         self.norm_ids = normalize_ids
         self.d = rank
@@ -115,8 +115,17 @@ class PMF(object):
         self.omega_v = pickle.load(open('omega_v.pkl', 'rb'))
         self.M = pickle.load(open('M.pkl', 'rb'))
         self.preprocessed = True
-        return ratings
-    
+        return
+
+    def depersist_model(self):
+        self.user_mapping_forward = pickle.load(open('user_mapping_forward.pkl', 'rb'))
+        self.user_mapping_backward = pickle.load(open('user_mapping_backward.pkl', 'rb'))
+        self.movie_mapping_forward = pickle.load(open('movie_mapping_forward.pkl', 'rb'))
+        self.movie_mapping_backward = pickle.load(open('movie_mapping_backward.pkl', 'rb'))
+        self.u = np.genfromtxt(os.path.join(os.getcwd(), "U.csv"), delimiter=',')
+        self.v = np.genfromtxt(os.path.join(os.getcwd(), "V.csv"), delimiter=',')
+        self.L = np.genfromtxt(os.path.join(os.getcwd(), "objective_epochs.csv"), delimiter=',')
+
     def create_id_mapping(self, ratings):
         """
         The mapping variables are 2-column numpy arrays. The first column contains the original
@@ -170,7 +179,8 @@ class PMF(object):
         self.preprocessed = True
 
         self.u, self.v, self.L = self.execute_training_epochs()
-        
+
+        print('persisting model (U, V, Ls)')
         np.savetxt('U.csv', self.u, delimiter=',')
         np.savetxt('V.csv', self.v, delimiter=',')
         np.savetxt('objective_epochs.csv', np.asarray(self.L))
@@ -184,8 +194,8 @@ class PMF(object):
             movieid = self.movie_mapping_forward[ratings[i, 1]]
             omega.append((userid, movieid))
         return omega
-    
-    def build_omega_u(self, ratings): 
+
+    def build_omega_u(self, ratings):
         # omega_u is a list of lists - the ith element is a list containing the indices of
         # the objects that the ith user has rated
         print('building omega_u | {}'.format(datetime.datetime.now()))
@@ -197,8 +207,8 @@ class PMF(object):
             internal_movieids = [self.movie_mapping_forward[mi] for mi in original_movieids]
             omega_u.append(internal_movieids)
         return omega_u
-        
-    def build_omega_v(self, ratings):     
+
+    def build_omega_v(self, ratings):
         # omega_v is a list of lists - the jth element is a list containing the indices of
         # the users that have rated the jth object
         print('building omega_v | {}'.format(datetime.datetime.now()))
@@ -210,7 +220,7 @@ class PMF(object):
             internal_userids = [self.user_mapping_forward[ui] for ui in original_userids]
             omega_v.append(internal_userids)
         return omega_v
-        
+
     def build_M(self, ratings):
         # build ratings matrix M - it will be represented by a dictionary where the keys are tuples of the form
         # (user_index, object_index) and the values are the ratings
@@ -219,7 +229,7 @@ class PMF(object):
         for i in range(ratings.shape[0]):
             M[self.omega[i]] = ratings[i,2]
         return M
-    
+
     def execute_training_epochs(self):
         # initialize vj's randomly
         # u is (N1 x 5) numpy array, v is (N2 x 5) numpy array
@@ -239,7 +249,7 @@ class PMF(object):
                 for j in self.omega_u[i]:
                     sum1 += np.outer(v[j,:], v[j,:])
                     sum2 += self.M[(i,j)] * v[j,:]
-                u[i,:] = np.linalg.inv(self.lamd*self.sig2*np.identity(self.d) + sum1).dot(sum2)        
+                u[i,:] = np.linalg.inv(self.lamd*self.sig2*np.identity(self.d) + sum1).dot(sum2)
             for j in range(self.N2):
                 # update object location
                 sum1 = np.zeros((self.d,self.d))
@@ -261,31 +271,30 @@ class PMF(object):
             for j in range(self.N2):
                 sum3 += self.lamd/2 * np.linalg.norm(v[j,:])**2
             L.append(-sum1 - sum2 - sum3)
-            
+
         return u, v, L
 
     def predict(self, request):
         """
         Use computed U and V matrices to make rating predictions
         :param request: pandas dataframe with columns 'userId' and 'movieId' 
-        :return: pandas dataframe with 'userId', 'movieId', and 'prediction'
+        :return: pandas dataframe with original 'userId', 'movieId', and an added 'prediction' column
         """
         predictions = []
         for inx, row in request.iterrows():
-            userid = row['userId']
-            movieid = row['movieId']
-            user_exists = userid in self.user_mapping[:, 0]
-            movie_exists = movieid in self.obj_mapping[:, 0]
+            original_userid = row['userId']
+            original_movieid = row['movieId']
+            user_exists = original_userid in self.user_mapping_forward
+            movie_exists = original_movieid in self.movie_mapping_forward
             if (not user_exists) or (not movie_exists):
                 if self.verbose:
-                    print('user {} exists: {} | movie {} exists: {}'.format(userid, user_exists, movieid, movie_exists))
+                    print('user {} exists: {} | movie {} exists: {}'.format(original_userid, user_exists,
+                                                                            original_movieid, movie_exists))
                 predictions.append(None)
                 continue
-            user_inx = np.where(self.user_mapping[:, 0] == userid)[0][0]
-            map_userid = self.user_mapping[user_inx, 1]
-            movie_inx = np.where(self.obj_mapping[:, 0] == movieid)[0][0]
-            map_movieid = self.obj_mapping[movie_inx, 1]
-            prediction = self.u[map_userid, :].dot(self.v[map_movieid, :])
+            internal_userid = self.user_mapping_forward[original_userid]
+            internal_movieid = self.movie_mapping_forward[original_movieid]
+            prediction = self.u[internal_userid, :].dot(self.v[internal_movieid, :])
             predictions.append(prediction)
         results = request.copy()
         results['prediction'] = predictions
