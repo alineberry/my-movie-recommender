@@ -13,3 +13,5 @@ src/__pycache__/
 !U.csv
 !V.csv
 !movie_recommendations.csv
+
+*.xlsx
