@@ -61,10 +61,7 @@ class MovieFilter(object):
         len1 = len(self.movies)
         self.print_filter_results('filter_release_year', len0, len1)
 
-    def filter_rating_freq(self, threshold=200, movieId_col='movieId'):
-        cwd = os.getcwd()
-        ratings = pd.read_csv(os.path.join(cwd, "..", "data", "ratings.csv"))
-        freq = ratings[movieId_col].value_counts()
+    def filter_rating_freq(self, freq, threshold=200, movieId_col='movieId'):
         red_freq = freq[freq >= threshold]
         red_freq = red_freq.index.tolist()
         mask = self.movies[movieId_col].isin(red_freq)
@@ -199,10 +196,13 @@ class PMF(object):
         # the objects that the ith user has rated
         print('building omega_u | {}'.format(datetime.datetime.now()))
         omega_u = []
+        progress_update_step = round(self.N1 / 10)
         for i in range(self.N1):
+            if (i % 1000) == 0:
+                print('iteration {} of {} | {}'.format(i, self.N1, datetime.datetime.now()))
             userid = self.user_mapping_backward[i]
             user_ratings = ratings[ratings[:, 0] == userid]
-            original_movieids = list(np.unique(user_ratings[:, 1]).astype(int))
+            original_movieids = set(user_ratings[:, 1].astype(int))
             internal_movieids = [self.movie_mapping_forward[mi] for mi in original_movieids]
             omega_u.append(internal_movieids)
         return omega_u

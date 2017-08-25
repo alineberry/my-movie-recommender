@@ -12,6 +12,7 @@ src/__pycache__/
 !objective_epochs.csv
 !U.csv
 !V.csv
-!movie_recommendations.csv
+!movie_recommendations_adam_PMF.csv
+!movie_recommendations_adam_SVD.csv
 
 *.xlsx
