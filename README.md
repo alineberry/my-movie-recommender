@@ -33,11 +33,13 @@ I guess I tend to give movies high ratings. I wonder what the population distrib
 
 Regardless of how my distribution stacks up with everyone else, I don't expect it to affect the results of the recommender.
 
-## Model Selection (hyperparameter tuning)
+## Probabilistic Matrix Factorization Model (PMF)
+
+### Model Selection (hyperparameter tuning)
 
 One of the more challenging tasks in this project is figuring out what model to use. There are three primary hyperparameters that must be selected for a particular PMF model:
 
-### 1. Rank 
+#### 1. Rank 
 
 This is the rank of the matrix factorization. The sparse matrix for this dataset has a size ~ 140,00 x 27,000. The idea is that you can factorize this massive and very sparse matrix into the multiplication of two much smaller [and more manageable] matrices. The rank of the factorization essentially determines the size of the two smaller matrices. 
 
@@ -47,5 +49,14 @@ The new dimensions in this latent space can be thought of as "concepts". For exa
 
 Based on recommendations from others, my own intuition, and practical concerns for computation time, I have chosen to use **rank 10.**
 
-2. **Lambda.**
-3. **Variance.**
+#### 2. **Lambda.**
+
+PMF assumes that the rows in the decomposed matrices (which are vectors embedding users and movies into latent space) come from a Gaussian distribution with mean 0 and a covariance matrix equal to lambda^(-1) * **I**. Lambda is a regularization parameter that controls the variance of the prior distributions on the rows of these low rank factorized matrices U and V. Based on the results of a grid search performed in notebooks/5-model-selection-PMF.ipynb, a value of **7.5 is selected for lambda.**
+
+#### 3. **Variance.**
+
+PMF assumes a 1D Gaussian distribution on the individual elements of the sparse ratings matrix. Variance here refers to the variance of this distribution. As a result of the grid search, a value of **0.5 is selected for variance.**
+
+## Singular Value Decomposition Model (SVD)
+
+An SVD model was also applied in this project. SVD factorizes the sparse ratings matrix into the product of three low rank matrices: the left-singular vectors, right-singular vectors, and the non-zero singular values. Similar to SVD, the rows of U and V, when multiplied by the singular values matrix, represent an embedding of users and movies into a shared latent space. Once the low rank decomposition has been found, predictions are made by computing the matrix multiplication, or a subset thereof.
