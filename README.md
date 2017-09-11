@@ -60,3 +60,5 @@ PMF assumes a 1D Gaussian distribution on the individual elements of the sparse 
 ## Singular Value Decomposition Model (SVD)
 
 An SVD model was also applied in this project. SVD factorizes the sparse ratings matrix into the product of three low rank matrices: the left-singular vectors, right-singular vectors, and the non-zero singular values. Similar to SVD, the rows of U and V, when multiplied by the singular values matrix, represent an embedding of users and movies into a shared latent space. Once the low rank decomposition has been found, predictions are made by computing the matrix multiplication, or a subset thereof.
+
+For SVD I was able to take advantage of scipy's compressed sparse column (CSC) matrix and an SVD algorithm optimized for operating on CSC matrices. This helped SVD significantly outperform PMF in computation time.
