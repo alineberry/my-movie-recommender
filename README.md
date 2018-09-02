@@ -7,6 +7,10 @@
 - `source activate my-movie-recommender`
 - `ipython kernel install --user --name=my-movie-recommender`
 
+Ensure PyTorch is installed
+
+`conda install pytorch torchvision -c pytorch` (works for Linux and MacOS)
+
 ## Introduction
 
 I like to watch movies but it's becoming increasingly difficult to find new movie choices. I'd rather not rewatch and I haven't had much luck manually scouring the web for random movie ranking lists. So, I started this project to develop a movie recommender system to discover new movies to watch that I will [hopefully] enjoy watching.
