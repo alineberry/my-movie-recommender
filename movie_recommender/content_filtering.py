@@ -4,13 +4,13 @@ import pandas as pd
 
 
 class ContentFiltering(object):
-    '''Methods for performing content filtering
+    '''Methods for performing Content Filtering.
     Input: data - a pandas dataframe of items and features.
         similarity_metric = str definining the similarity metrics to use.'''
 
     def __init__(self, data):
         self.data = data
-        self.ids = embeddings.index.tolist()
+        self.ids = data.index.tolist()
 
     def tfidf_tokenizer(self, min_df, ngram_range, documents_column_name):
         '''Performes TF-IDF tokenization. Use documents_column_name to specify the
@@ -25,7 +25,7 @@ class ContentFiltering(object):
         return tfidf_df
 
     def get_svd_embeddings(self, feature_matrix, n):
-        ''' Compress the original feature matrix into n latent features using matrix factorization.
+        '''Compress the original feature matrix into n latent features using matrix factorization.
         Returns a dataframe with n latent features.'''
         svd = TruncatedSVD(n_components=n)
         latent_matrix = svd.fit_transform(feature_matrix)
@@ -33,7 +33,7 @@ class ContentFiltering(object):
         return latent_df
 
     def get_autoencoder_embeddings(self, feature_matrix, n):
-        ''' Compress the original feature matrix into n latent features using autoencoders.
+        '''Compress the original feature matrix into n latent features using autoencoders.
         Returns a dataframe with n latent features.'''
         latent_df = pd.DataFrame([])
         return latent_df
