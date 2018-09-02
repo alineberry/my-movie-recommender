@@ -45,7 +45,8 @@ def split_by_idx(idxs, *a):
 
 class AutoEncoder(object):
 
-    def __init__(self, data, validation_perc=0.2, lr=0.001):
+    def __init__(self, data, validation_perc=0.2, lr=0.001,
+                 intermediate_size=1000, encoded_size=100):
 
         # create training dataloader and validation tensor
         self.data = data
@@ -59,8 +60,8 @@ class AutoEncoder(object):
 
         # instantiate the encoder and decoder nets
         size = data.shape[1]
-        self.encoder = Encoder(size).cuda()
-        self.decoder = Decoder(size).cuda()
+        self.encoder = Encoder(size, intermediate_size, encoded_size).cuda()
+        self.decoder = Decoder(size, intermediate_size, encoded_size).cuda()
 
         # instantiate the optimizers
         self.encoder_optimizer = optim.Adam(
@@ -80,7 +81,6 @@ class AutoEncoder(object):
         self.decoder_optimizer.zero_grad()
 
         # Forward pass through
-
         encoded_representation = self.encoder(input_tensor)
         reconstruction = self.decoder(encoded_representation)
 
@@ -158,14 +158,14 @@ class AETrainingData(Dataset):
 
 
 class Encoder(nn.Module):
-    def __init__(self, input_size):
+    def __init__(self, input_size, intermediate_size, encoding_size):
         super().__init__()
         self.encoder = nn.Sequential(
-            nn.Linear(input_size, 1000),
-            nn.BatchNorm1d(1000),
+            nn.Linear(input_size, intermediate_size),
+            nn.BatchNorm1d(intermediate_size),
             nn.ReLU(True),
-            nn.Linear(1000, 100),
-            nn.BatchNorm1d(100),
+            nn.Linear(intermediate_size, encoding_size),
+            nn.BatchNorm1d(encoding_size),
             nn.ReLU(True))
 
     def forward(self, x):
@@ -174,13 +174,13 @@ class Encoder(nn.Module):
 
 
 class Decoder(nn.Module):
-    def __init__(self, output_size):
+    def __init__(self, output_size, intermediate_size, encoding_size):
         super().__init__()
         self.decoder = nn.Sequential(
-            nn.Linear(100, 1000),
-            nn.BatchNorm1d(1000),
+            nn.Linear(encoding_size, intermediate_size),
+            nn.BatchNorm1d(intermediate_size),
             nn.ReLU(True),
-            nn.Linear(1000, output_size),
+            nn.Linear(intermediate_size, output_size),
             nn.Sigmoid())
 
     def forward(self, x):
