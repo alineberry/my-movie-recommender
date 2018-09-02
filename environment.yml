@@ -247,5 +247,3 @@ dependencies:
   - zlib=1.2.11=hf3cbc9b_2
   - pip:
     - tables==3.4.3
-prefix: /Users/alineberry/anaconda2/envs/my-movie-recommender
-
