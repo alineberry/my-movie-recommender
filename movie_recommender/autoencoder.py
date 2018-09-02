@@ -48,6 +48,7 @@ class AutoEncoder(object):
     def __init__(self, data, validation_perc=0.2, lr=0.001):
 
         # create training dataloader and validation tensor
+        self.data = data
         self.val_idxs = get_cv_idxs(n=data.shape[0], val_pct=validation_perc)
         [(self.val, self.train)] = split_by_idx(self.val_idxs, data)
         self.dataset = AETrainingData(self.train)
@@ -57,7 +58,7 @@ class AutoEncoder(object):
             type(torch.FloatTensor).cuda()
 
         # instantiate the encoder and decoder nets
-        size = data.shape[0]
+        size = data.shape[1]
         self.encoder = Encoder(size).cuda()
         self.decoder = Decoder(size).cuda()
 
@@ -102,7 +103,7 @@ class AutoEncoder(object):
         loss = self.criterion(decoded, target_tensor)
         return loss.item()
 
-    def train(self, epochs, print_every_n_batches=100):
+    def train_loop(self, epochs, print_every_n_batches=100):
 
         # Cycle through epochs
         for epoch in range(epochs):
@@ -122,12 +123,18 @@ class AutoEncoder(object):
                     self.train_losses.append(loss)
                     self.val_losses.append(val_loss)
 
+    def get_encoded_representations(self):
+        to_encode = torch.from_numpy(self.data.values).type(
+            torch.FloatTensor).cuda()
+        encodings = self.encoder(to_encode).cpu().data.numpy()
+        return encodings
+
 
 class AETrainingData(Dataset):
-    '''
-        Format the training dataset to be input into the auto encoder.
-        Takes in dataframe and converts it to a PyTorch Tensor
-    '''
+    """
+    Format the training dataset to be input into the auto encoder.
+    Takes in dataframe and converts it to a PyTorch Tensor
+    """
 
     def __init__(self, x_train):
         self.x = x_train
@@ -136,9 +143,9 @@ class AETrainingData(Dataset):
         return len(self.x)
 
     def __getitem__(self, idx):
-        '''
-            Returns a example from the data set as a pytorch tensor.
-        '''
+        """
+        Returns a example from the data set as a pytorch tensor.
+        """
         # Get example/target pair at idx as numpy arrays
         x, y = self.x.iloc[idx].values, self.x.iloc[idx].values
 
