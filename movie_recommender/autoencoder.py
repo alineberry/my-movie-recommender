@@ -57,8 +57,9 @@ class AutoEncoder(object):
             type(torch.FloatTensor).cuda()
 
         # instantiate the encoder and decoder nets
-        self.encoder = Encoder().cuda()
-        self.decoder = Decoder().cuda()
+        size = data.shape[0]
+        self.encoder = Encoder(size).cuda()
+        self.decoder = Decoder(size).cuda()
 
         # instantiate the optimizers
         self.encoder_optimizer = optim.Adam(
