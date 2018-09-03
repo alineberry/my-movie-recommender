@@ -1,6 +1,7 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import TruncatedSVD
 import pandas as pd
+from autoencoder import AutoEncoder
 
 
 class ContentFiltering(object):
@@ -35,5 +36,20 @@ class ContentFiltering(object):
     def get_autoencoder_embeddings(self, feature_matrix, n):
         '''Compress the original feature matrix into n latent features using autoencoders.
         Returns a dataframe with n latent features.'''
-        latent_df = pd.DataFrame([])
+        ae = AutoEncoder(data=feature_matrix,
+                         validation_perc=0.2,
+                         lr=0.001,
+                         intermediate_size=1000,
+                         encoded_size=n)
+        ae.train_loop(epochs=10)
+        encoded = ae.get_encoded_representations()
+        latent_df = pd.DataFrame(encoded, index=self.ids)
         return latent_df
+
+    def save_embeddings(self, latent_df, path, file_format='csv'):
+        '''Save embeddings locally'''
+        assert file_format in ['csv', 'pickle'], "unsupported format"
+        if file_format == 'csv':
+            latent_df.to_csv(path, header=True, index=True)
+        elif forfile_formatmat == 'pickle':
+            latent_df.to_pickle(path)
