@@ -33,19 +33,6 @@ class ContentFiltering(object):
         latent_df = pd.DataFrame(latent_matrix, index=self.ids)
         return latent_df
 
-    def get_autoencoder_embeddings(self, feature_matrix, n):
-        '''Compress the original feature matrix into n latent features using autoencoders.
-        Returns a dataframe with n latent features.'''
-        ae = AutoEncoder(data=feature_matrix,
-                         validation_perc=0.2,
-                         lr=0.001,
-                         intermediate_size=1000,
-                         encoded_size=n)
-        ae.train_loop(epochs=10)
-        encoded = ae.get_encoded_representations()
-        latent_df = pd.DataFrame(encoded, index=self.ids)
-        return latent_df
-
     def save_embeddings(self, latent_df, path, file_format='csv'):
         '''Save embeddings locally'''
         assert file_format in ['csv', 'pickle'], "unsupported format"

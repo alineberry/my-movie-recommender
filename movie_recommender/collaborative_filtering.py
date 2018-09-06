@@ -24,16 +24,6 @@ class CollaborativeFiltering(object):
         user_latent_df = pd.DataFrame([])
         return item_latent_df, user_latent_df
 
-    def get_neural_network_embeddings(self, n):
-        '''Compress the original user-item interaction matrix into n latent features
-        using a neural network approach to dimensionality reduction.
-        Returns:
-        item_latent_df - a matrix for mapping items into latent space.
-        user_latent_df - a matrix for mapping users into latent space.'''
-        item_latent_df = pd.DataFrame([])
-        user_latent_df = pd.DataFrame([])
-        return item_latent_df, user_latent_df
-
     def save_embeddings(self, latent_df, path, file_format='csv'):
         '''Save embeddings locally'''
         assert file_format in ['csv', 'pickle'], "unsupported format"

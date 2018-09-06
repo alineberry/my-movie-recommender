@@ -1,4 +1,5 @@
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics.pairwise import euclidean_distances
 import pandas as pd
 
 class SimilarityPredictions(object):
@@ -22,6 +23,14 @@ class SimilarityPredictions(object):
             index=self.ids)
         similarity_matrix.columns = self.ids
         return similarity_matrix
+
+    def calculate_euclidean_distances_matrix(self):
+        '''Calculates a cosine similarity matrix from the embeddings'''
+        euclisimilarity_matrixdean_matrix = pd.DataFrame(euclidean_distances(
+            X=self.embeddings),
+            index=self.ids)
+        similarity_matrix.columns = self.ids
+        return euclsimilarity_matrixidean_matrix
 
     def save_similarity_model(self, path, file_format='csv'):
         '''Save similarity matrix locally'''
