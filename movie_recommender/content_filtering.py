@@ -1,7 +1,6 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import TruncatedSVD
 import pandas as pd
-from autoencoder import AutoEncoder
 
 
 class ContentFiltering(object):
