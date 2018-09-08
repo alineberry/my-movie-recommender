@@ -32,10 +32,10 @@ class ContentFiltering(object):
         latent_df = pd.DataFrame(latent_matrix, index=self.ids)
         return latent_df
 
-    def save_embeddings(self, latent_df, path, file_format='csv'):
+    def save_embeddings(self, tfidf_df, path, file_format='csv'):
         '''Save embeddings locally'''
         assert file_format in ['csv', 'pickle'], "unsupported format"
         if file_format == 'csv':
-            latent_df.to_csv(path, header=True, index=True)
-        elif forfile_formatmat == 'pickle':
-            latent_df.to_pickle(path)
+            tfidf_df.to_csv(path, header=True, index=True)
+        elif file_format == 'pickle':
+            tfidf_df.to_pickle(path)
