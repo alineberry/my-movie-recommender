@@ -96,8 +96,13 @@ class AutoEncoder(object):
 
         # Return the loss value to track training progress
         return loss.item()
+    
+    def reset(self, train=True):
+        if train: self.encoder.train(); self.decoder.train()
+        else: self.encoder.eval(); self.decoder.eval()
 
     def get_val_loss(self, input_tensor, target_tensor):
+        self.reset(train=False)
         encoded = self.encoder(input_tensor)
         decoded = self.decoder(encoded)
         loss = self.criterion(decoded, target_tensor)
@@ -111,6 +116,8 @@ class AutoEncoder(object):
             print(f'Epoch {epoch + 1}/{epochs}')
             # Cycle through batches
             for i, batch in enumerate(self.dataloader):
+                
+                self.reset(train=True)
 
                 input_tensor = batch['input'].cuda()
                 target_tensor = batch['target'].cuda()
@@ -126,6 +133,7 @@ class AutoEncoder(object):
     def get_encoded_representations(self):
         to_encode = torch.from_numpy(self.data.values).type(
             torch.FloatTensor).cuda()
+        self.reset(train=False)
         encodings = self.encoder(to_encode).cpu().data.numpy()
         return encodings
 
@@ -164,9 +172,11 @@ class Encoder(nn.Module):
             nn.Linear(input_size, intermediate_size),
             nn.BatchNorm1d(intermediate_size),
             nn.ReLU(True),
+            nn.Dropout(0.2),
             nn.Linear(intermediate_size, encoding_size),
             nn.BatchNorm1d(encoding_size),
-            nn.ReLU(True))
+            nn.ReLU(True),
+            nn.Dropout(0.2))
 
     def forward(self, x):
         x = self.encoder(x)
@@ -180,7 +190,9 @@ class Decoder(nn.Module):
             nn.Linear(encoding_size, intermediate_size),
             nn.BatchNorm1d(intermediate_size),
             nn.ReLU(True),
+            nn.Dropout(0.2),
             nn.Linear(intermediate_size, output_size),
+            nn.BatchNorm1d(output_size),
             nn.Sigmoid())
 
     def forward(self, x):
