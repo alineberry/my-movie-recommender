@@ -1,6 +1,6 @@
 # my-movie-recommender
 
-This repository contains a variety of recommender system work. Some of the work pertains to making user-movie recommendations through a couple of different matrix factorization methods - the project description contained in this readme is specific to that. The newer work pertains to using deep learning to develop a hybrid item-to-item content-collaborative recommender - this work is described in great detail in this blog post (link coming soon).
+This repository contains a variety of recommender system work. Some of the work pertains to making user-movie recommendations through a couple different matrix factorization methods - the project description contained in this readme is specific to that. The newer work pertains to using deep learning to develop a hybrid item-to-item content-collaborative recommender - this work is described in great detail in this blog post (link coming soon).
 
 ## Dev Setup
 
