@@ -40,7 +40,7 @@ class SimilarityPredictions(object):
         assert file_format in ['csv', 'pickle'], "unsupported format"
         if file_format == 'csv':
             self.similarity_matrix.to_csv(path, header=True, index=True)
-        elif forfile_formatmat == 'pickle':
+        elif file_format == 'pickle':
             self.similarity_matrix.to_pickle(path)
 
     def predict_similar_items(self, seed_item, n):
