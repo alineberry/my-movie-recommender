@@ -128,7 +128,8 @@ class AutoEncoder(object):
 
                 if i % print_every_n_batches == 0 and i != 0:
                     val_loss = self.get_val_loss(self.val, self.val)
-                    print(f'train loss: {loss} | validation loss: {val_loss})')
+                    print(f'train loss: {round(loss, 8)} | ' +
+                          f'validation loss: {round(val_loss, 8)})')
                     self.train_losses.append(loss)
                     self.val_losses.append(val_loss)
 
