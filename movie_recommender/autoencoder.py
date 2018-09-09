@@ -98,6 +98,8 @@ class AutoEncoder(object):
         return loss.item()
     
     def reset(self, train=True):
+        # due to dropout the network behaves differently in training and
+        # evaluation modes
         if train: self.encoder.train(); self.decoder.train()
         else: self.encoder.eval(); self.decoder.eval()
 
@@ -112,8 +114,8 @@ class AutoEncoder(object):
 
         # Cycle through epochs
         for epoch in range(epochs):
-
             print(f'Epoch {epoch + 1}/{epochs}')
+
             # Cycle through batches
             for i, batch in enumerate(self.dataloader):
                 
